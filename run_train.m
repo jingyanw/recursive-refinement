@@ -21,5 +21,6 @@ baseLR2 = 1/2;
 
 % train VOC 2011-inst
 % recursive_train('expDir', 'models/full-faster-rcnn-again', 'imdbPath', imdbPath25, 'clusterPath', clusterPath25, 'train', struct('gpus', gpus), 'derOutputs', derOutputs, 'baseLR', baseLR2);
+recursive_train('expDir', 'models/full-faster-rcnn-split-edited', 'imdbPath', imdbPath25, 'clusterPath', clusterPath25, 'train', struct('gpus', gpus), 'derOutputs', derOutputs, 'baseLR', baseLR3);
 
-recursive_train('expDir', 'models/full-shape25-bkg', 'imdbPath', imdbPath25, 'clusterPath', clusterPath25, 'train', struct('gpus', gpus), 'derOutputs', derOutputs20Normalize, 'baseLR', baseLR3);
+% recursive_train('expDir', 'models/full-shape25-bkg', 'imdbPath', imdbPath25, 'clusterPath', clusterPath25, 'train', struct('gpus', gpus), 'derOutputs', derOutputs20Normalize, 'baseLR', baseLR3);

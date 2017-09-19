@@ -36,12 +36,13 @@ classdef Proposal2 < dagnn.Layer
     % none
 
     % outputs:
-    % outputs{1-C} rois_c: 5 x Pc [gpuArray]
-    % outputs{(C+1)-2C} [TRAIN] label_c: 1 x Pc (multi-class)
+    % outputs{1} rois: 5 x (Pc1 + ... + PcC) [gpuArray]
+    % outputs{2} split: 1 x C
+    % outputs{3-(C+2)} [TRAIN] label_c: 1 x Pc (multi-class)
     %                                    1 x 1 x (Csub + 1) x Pc (multi-label)
     %                   [TEST] probs_c: 1 x min(TOP_N, P)
-    % outputs{(2C+1)-3C} targets_c: 1x1x 4(Csub+1) x Pc [gpuArray]
-    % outputs{(3C+1)-4C} instance_weights_c: 1x1x 4(Csub+1) x Pc [gpuArray]
+    % outputs{(C+3)-(2C+2)} targets_c: 1x1x 4(Csub+1) x Pc [gpuArray]
+    % outputs{(2C+3)-(3C+2)} instance_weights_c: 1x1x 4(Csub+1) x Pc [gpuArray]
 
     function outputs = forward(obj, inputs, params)
         cls_probs = gather(squeeze(inputs{1}));
@@ -72,8 +73,10 @@ classdef Proposal2 < dagnn.Layer
         gt_classes = gtboxes(5, :);
         gt_subclasses = gtboxes(6, :);
         
-        outputs = cell(1, 4*C);
+        outputs = cell(1, 3*C + 2);
 
+        rois_all = zeros(5, 0);
+        split = zeros(1, C);
         for c = 1 : C
             bglabel = obj.nSubclass(c) + 1;
             % pick proposals for class C
@@ -170,8 +173,8 @@ classdef Proposal2 < dagnn.Layer
             targets_c = bsxfun(@minus, targets_c, obj.bboxMean2');
             targets_c = bsxfun(@rdivide, targets_c, obj.bboxStd2');
 
-            outputs{c} = gpuArray(rois_c);
-            outputs{C + c} = labels_c;
+            % outputs{c} = gpuArray(rois_c);
+            outputs{2 + c} = labels_c;
             % if npos == 0, keyboard; end
                 
             R = size(rois_c, 2); % total number of ROIs
@@ -200,13 +203,18 @@ classdef Proposal2 < dagnn.Layer
                 end
             end
 
-            outputs{2 * C + c} = gpuArray(targets);
-            outputs{3 * C + c} = gpuArray(instance_weights);
+            rois_all = [rois_all, rois_c];
+            split(c) = R;
+
+            outputs{2 + C + c} = gpuArray(targets);
+            outputs{2 + 2 * C + c} = gpuArray(instance_weights);
             if obj.DEBUG
                 fprintf('[proposal2]\n'); 
                 keyboard
             end
         end
+        outputs{1} = gpuArray(rois_all);
+        outputs{2} = split;
     end
 
     function [derInputs, derParams] = backward(obj, inputs, params, derOutputs)
