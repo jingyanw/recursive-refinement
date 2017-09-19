@@ -1,3 +1,5 @@
+% RUN_TRAIN: script to run the model
+
 gpus = [4];
 imdbPath25 = 'data/imdb-voc11inst-shape-thresh0.25.mat';
 imdbPath20 = 'data/imdb-voc11inst-shape-thresh0.20.mat';

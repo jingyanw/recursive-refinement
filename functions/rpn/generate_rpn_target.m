@@ -1,5 +1,5 @@
 function [labels, targets, weights] = full_generate_anchor_target(varargin)
-opts.DEBUG = false;
+opts.debug = false;
 [opts, varargin] = vl_argparse(opts, varargin);
 
 % required
@@ -44,7 +44,7 @@ inds_inside = all_anchors(:, :, :, 1) >= 0 & ...
 
 inds_inside_idx = find(inds_inside);
 
-if opts.DEBUG
+if opts.debug
     fprintf('total_anchors %d\n', numel(inds_inside));
     fprintf('inds_inside %d\n', sum(inds_inside(:)));
 end
@@ -108,7 +108,7 @@ weights = (labels == 1);
 weights = single(repelem(weights, 1, 1, 4)); % [A1_dx, A1_dy, A1_dw, A1_dh, ...]
 % weights = single(repmat(weights, 1, 1, 4)); % [A1_dx, A2_dx, A3_dx, ...]
 
-if opts.DEBUG
+if opts.debug
     ts = targets(weights == 1);
     fprintf('RPN mean: %.3f\n', mean(ts));
     fprintf('RPN std: %.3f\n', std(ts));

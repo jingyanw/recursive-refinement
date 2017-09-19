@@ -7,7 +7,7 @@ opts = vl_argparse(opts, varargin) ;
 %                                                  Load categories metadata
 % -------------------------------------------------------------------------
 
-imdb.classes.name ={'aeroplane', 'bicycle', 'bird', 'boat', 'bottle',...
+imdb.classes.name = {'aeroplane', 'bicycle', 'bird', 'boat', 'bottle',...
                'bus','car', 'cat', 'chair', 'cow',...
                'diningtable', 'dog', 'horse', 'motorbike', 'person',...
                'pottedplant', 'sheep', 'sofa', 'train', 'tvmonitor'};
@@ -61,11 +61,10 @@ for thisSet = {'train', 'val'}
     gtbox{i} = boxes_inst;
     gtlabel{i} = labels_inst;
     gtdist{i} = iou_cluster;
-    if numel(labels_inst) ~= size(iou_cluster, 1) ...
-        || ~isequal(size(iou_cluster), size(iou_cluster_flip))
-        fprintf('debug'); keyboard;
-    end
     gtdistflip{i} = iou_cluster_flip;
+
+    assert(numel(labels_inst) == size(iou_cluster, 1));
+    assert(isequal(size(iou_cluster), size(iou_cluster_flip)));
 
     if mod(i-1, 100) == 0, fprintf('[%s %.1f sec] %d/%d.\n', thisSet, toc(start), i, length(gtids)); end
   end

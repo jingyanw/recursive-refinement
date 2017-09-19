@@ -1,4 +1,5 @@
-function full_test_shape(varargin)
+function recursive_test(varargin)
+% RECURSIVE_TEST: test the model on detection and instance segmentation
 
 opts.expDir = 'models/trash';
 opts.epoch = 0;
@@ -19,20 +20,12 @@ opts.gpu = [] ;
 opts.numFetchThreads = 1 ;
 opts.nmsThresh = 0.3 ;
 opts.maxPerImage = 100 ;
-opts.singleRegress = true;
-opts.ub = false;
 opts.postprocessing = false;
-opts.avg = false;
 
 % ablations
-opts.reg_subcls = true;
 opts.conf_subcls = true;
 [opts, varargin] = vl_argparse(opts, varargin) ;
 
-if opts.avg
-    avg = load('../analyze/average-pascal.mat');
-    avg = avg.templates;
-end
 display(opts) ;
 
 if ~isempty(opts.gpu)
@@ -53,8 +46,7 @@ net.layers(lProposal).block.post_nms_top_n(2) = opts.top1;
 lProposal2 = net.getLayerIndex('proposal2');
 net.layers(lProposal2).block.top_n = opts.top2;
 
-% fprintf('Inspect net:\n'); keyboard;
-net = full_deploy(net, 'singleRegress', opts.singleRegress, 'confThresh', opts.confThresh);
+net = recursive_deploy(net, 'confThresh', opts.confThresh);
 
 if ~isempty(opts.gpu)
   net.move('gpu') ;
@@ -117,7 +109,7 @@ inst.objMap = cell(1, NVal);
 inst.shape = cell(1, NVal); % subcategory AP
 
 start = tic ;
-% testIdx = testIdx(1:101); % debug only
+% testIdx = testIdx(1:101); % debug only % TODO: remove this
 for t=1: numel(testIdx)
   batch = testIdx(t);
   inputs = getBatch(bopts, imdb, batch);
@@ -174,18 +166,12 @@ for t=1: numel(testIdx)
 
     M = numel(conf);
     for m = 1 : M
-      if opts.reg_subcls
-          box = boxscore(m, 1:4);
-          if opts.singleRegress
-            delta = box_deltas(:, m)';
-          else
-            delta = shape_deltas((shape_idx(m) - 1) * 4 + 1 : shape_idx(m) * 4, m)';
-          end
+       box = boxscore(m, 1:4);
+       delta = box_deltas(:, m)';
 
-          box = bbox_transform_inv(box, delta);
-          box = bbox_clip(round(box), im_size);
-          boxscore(m, 1:4) = box;
-      end
+       box = bbox_transform_inv(box, delta);
+       box = bbox_clip(round(box), im_size);
+       boxscore(m, 1:4) = box;
     end
 
     % NMS
@@ -210,13 +196,7 @@ for t=1: numel(testIdx)
       w = right - left + 1;
       h = bottom - top + 1;
 
-      if opts.ub
-        exemplar = max_ovlp_inst(imdb.images.name{testIdx(t)}(1:end-4), box, cls, clusters.means{cls});
-      elseif opts.avg
-        exemplar = imresize(avg{cls}, [h, w], 'nearest');
-      else
-        exemplar = imresize(clusters.means{cls}{subcls_idx(m)}, [h, w], 'nearest');
-      end
+      exemplar = imresize(clusters.means{cls}{subcls_idx(m)}, [h, w], 'nearest');
       objMap{m} = logical(exemplar);
     end
 
@@ -226,8 +206,6 @@ for t=1: numel(testIdx)
     inst.offset{t} = vertcat(inst.offset{t}, offset);
     inst.objMap{t} = horzcat(inst.objMap{t}, objMap);
 
-    assert(numel(subcls_idx) == numel(conf)); % TODO :delete
-    
     if false % TODO: rewrite this 
       idx = conf > 0.5;
       boxscores_nms{cat, t}(:, 5) = conf;

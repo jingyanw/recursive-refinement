@@ -9,9 +9,6 @@ function [imo, gts] = full_get_batch_single(images, imdb, batch, opts)
 % opts.prefetch = true;
 % opts.mode = 'train' OR 'test'
 
-% opts.randomize
-% opts.randomizeThreshPos
-
 assert(numel(batch) == 1);
 
 if isempty(images)
@@ -69,17 +66,6 @@ switch opts.mode
         gtbox = imdb.boxes.gtbox{batch};
         gtlabel = imdb.boxes.gtlabel{batch};
         gtsublabel = imdb.boxes.gtsublabel{batch};
-        if opts.randomize % randomize gtsublabel
-            gtdist = imdb.boxes.gtdist{batch};
-            assert(numel(gtsublabel) == size(gtdist, 1));
-            for i = 1 : numel(gtsublabel)
-                ious = gtdist(i, 1:imdb.clusters.num(gtlabel(i)));
-                candidates = (ious > opts.randomizeThreshPos);
-                candidates(gtsublabel(i)) = true;
-                candidates = find(candidates);
-                gtsublabel(i) = datasample(candidates, 1);
-            end
-        end
         
         % adapt bounding boxes into new coord
         gtbox = bbox_scale(gtbox, factor, [imreSize(2) imreSize(1)]);

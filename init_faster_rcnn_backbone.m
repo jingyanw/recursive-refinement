@@ -1,5 +1,5 @@
 function net = init_faster_rcnn(varargin)
-opts.DEBUG = false;
+opts.debug = false;
 opts.modelPath = '/data/jingyanw/pretrained/imagenet-vgg-verydeep-16.mat';
 opts.nCls = 21;
 opts.bgThreshLo = 0;
@@ -68,13 +68,20 @@ net = initialize_param(net, 'rpn_regb', rpn_regb, 2, 0);
 
 % compute target
 % rpn-score loss
-net.addLayer('loss_rpn_cls', dagnn.Loss('loss', 'logistic'), {'rpn_score', 'rpn_labels'}, 'loss_rpn_cls');
+net.addLayer('loss_rpn_cls', dagnn.Loss('loss', 'logistic'), ...
+    {'rpn_score', 'rpn_labels'}, 'loss_rpn_cls');
 % rpn-regress loss
-net.addLayer('loss_rpn_reg', dagnn.LossSmoothL1('sigma', opts.rpn_sigma), {'rpn_reg', 'rpn_targets', 'rpn_instance_weights'}, 'loss_rpn_reg');
+net.addLayer('loss_rpn_reg', dagnn.LossSmoothL1('sigma', opts.rpn_sigma), ...
+    {'rpn_reg', 'rpn_targets', 'rpn_instance_weights'}, 'loss_rpn_reg');
 
 % proposal
 net.addLayer('rpn_prob', dagnn.Sigmoid(), 'rpn_score', 'rpn_prob');
-net.addLayer('proposal', dagnn.Proposal('bgThreshLo', opts.bgThreshLo, 'classPos', opts.classPos, 'classNeg', opts.classNeg, 'bboxStd', opts.bboxStd, 'DEBUG', opts.DEBUG, 'keep_neg_n', opts.keep_neg_n), {'rpn_prob', 'rpn_reg', 'gtboxes', 'imsize'}, {'rois', 'label', 'targets', 'instance_weights'});
+net.addLayer('proposal', dagnn.Proposal('bgThreshLo', opts.bgThreshLo, ...
+        'classPos', opts.classPos, 'classNeg', opts.classNeg, ...
+        'bboxStd', opts.bboxStd, 'keep_neg_n', opts.keep_neg_n), ...
+        'debug', opts.debug), ...
+    {'rpn_prob', 'rpn_reg', 'gtboxes', 'imsize'}, ...
+    {'rois', 'label', 'targets', 'instance_weights'});
 
 % Add ROIPooling layer.
 pFc6 = (arrayfun(@(a) strcmp(a.name, 'fc6'), net.layers)==1);

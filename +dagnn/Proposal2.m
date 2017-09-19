@@ -15,11 +15,10 @@ classdef Proposal2 < dagnn.Layer
     subclassNeg = 48;
     keep_neg_n = +Inf; % train
     top_n = 100; % test
-    singleRegress = true; % single regress for each shape category
     testProbBg = false; % include bg probability in test
 
     % debug
-    DEBUG = false;
+    debug = false;
   end
 
   methods
@@ -156,7 +155,7 @@ classdef Proposal2 < dagnn.Layer
                 neg = neg(randsample(numel(neg), subclassNeg));
             end
                 
-            if npos > 0 && obj.DEBUG
+            if npos > 0 && obj.debug
                 fprintf('[proposal2] cat #%d - loss sampling -- pos: %d/%d | neg: %d/%d\n', c, numel(pos), npos, ...
                     numel(neg), nneg);
                 % keyboard
@@ -178,28 +177,14 @@ classdef Proposal2 < dagnn.Layer
             % if npos == 0, keyboard; end
                 
             R = size(rois_c, 2); % total number of ROIs
-            if obj.singleRegress
-                % multi-class
-                targets = zeros(1, 1, 4, R, 'single');
-                instance_weights = zeros(1, 1, 4, R, 'single');
-                for r = 1 : R
-                    lb = labels_c(r);
-                    if (lb < bglabel)
-                        targets(:, :, :, r) = targets_c(r, :);
-                        instance_weights(:, :, :, r) = 1;
-                    end
-                end
-            else
-                targets = zeros(1, 1, 4 * (obj.nSubclass(c) + 1), R, 'single');
-                instance_weights = zeros(1, 1, 4 * (obj.nSubclass(c) + 1), R, 'single');
-
-                for r = 1 : R
-                    lb = labels_c(r);
-                    assert(lb > 0);
-                    if (lb < bglabel)
-                        targets(1, 1, 4 * (lb - 1) + 1 : 4 * lb, r) = targets_c(r, :);
-                        instance_weights(1, 1, 4 * (lb - 1) + 1 : 4 * lb, r) = 1;
-                    end
+            % multi-class
+            targets = zeros(1, 1, 4, R, 'single');
+            instance_weights = zeros(1, 1, 4, R, 'single');
+            for r = 1 : R
+                lb = labels_c(r);
+                if (lb < bglabel)
+                    targets(:, :, :, r) = targets_c(r, :);
+                    instance_weights(:, :, :, r) = 1;
                 end
             end
 
@@ -208,10 +193,6 @@ classdef Proposal2 < dagnn.Layer
 
             outputs{2 + C + c} = gpuArray(targets);
             outputs{2 + 2 * C + c} = gpuArray(instance_weights);
-            if obj.DEBUG
-                fprintf('[proposal2]\n'); 
-                keyboard
-            end
         end
         outputs{1} = gpuArray(rois_all);
         outputs{2} = split;

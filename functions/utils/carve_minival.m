@@ -1,4 +1,6 @@
 function imdb = carve_minival(imdb)
+% CARVE_MINIVAL: a helper function to keep a smaller validation set (minival) when evaluating each epoch of the model during training
+
 NMinival = 500;
 rng(0);
 val = find(imdb.images.set == 2);
@@ -12,12 +14,10 @@ imdb.images.name = imdb.images.name(select);
 imdb.images.size = imdb.images.size(select, :);
 imdb.images.set = imdb.images.set(select);
 
-field = {'gtbox', 'gtlabel', 'gtshape', 'flip', 'pbox', 'plabel', 'piou', 'pgtidx', 'ptarget', 'gtshapeiou', 'pshape', 'gtsublabel', 'gtdist'};
+fields = fieldnames(imdb.boxes)';
 for f = field
     f = char(f);
-    if isfield(imdb.boxes, f)
-        imdb.boxes.(f) = imdb.boxes.(f)(select);
-    end
+    imdb.boxes.(f) = imdb.boxes.(f)(select);
 end
 
 fprintf('Carved minival.\n');

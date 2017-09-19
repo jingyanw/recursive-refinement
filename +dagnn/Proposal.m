@@ -6,24 +6,23 @@ classdef Proposal < dagnn.Layer
     post_nms_top_n = [2000, 300];
     keep_pos_n = +Inf;
     keep_neg_n = 500;
-    % min_size = 16;
+    % min_size = 16; % remove proposals smaller than 16x16
     nClass = 20;
     bboxMean = zeros(1, 4);
-    % bboxStd = [0.1, 0.1, 0.2, 0.2];
     bboxStd = ones(1, 4);
     bboxMean2 = zeros(1, 4);
     bboxStd2 = [0.1, 0.1, 0.2, 0.2];
     anchors = generate_anchors();
     feat_stride = 16;
 
-    classPos = 256 * 0.25;
-    classNeg = 256 * 0.75;
+    classPos = 128;
+    classNeg = 128;
     fgThresh = 0.5;
     bgThreshHi = 0.5;
     bgThreshLo = 0;
 
-    % DEBUG
-    DEBUG = false;
+    % debug
+    debug = false;
   end
 
   methods
@@ -181,7 +180,7 @@ classdef Proposal < dagnn.Layer
                 outputs{3} = targets;
                 outputs{4} = instance_weights;
                 
-                if obj.DEBUG
+                if obj.debug
                     fprintf('[proposal] pos: %d | neg: %d\n', ...
                         sum((labels < obj.nClass + 1) & (labels > 0)), ...
                         sum(labels == obj.nClass + 1) ...

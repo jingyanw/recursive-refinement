@@ -1,5 +1,6 @@
 function net = recursive_init(varargin)
-opts.DEBUG = false;
+opts.debug = false;
+
 % OPTS: Faster-RCNN
 opts.modelPath = '';
 opts.nCls = 21;
@@ -25,7 +26,6 @@ opts.category = [];
 opts.bgThreshLoSubclass = 0;
 opts.keep_neg_n_subclass = +Inf;
 
-opts.singleRegress = true;
 [opts, varargin] = vl_argparse(opts, varargin) ;
 display(opts) ;
 
@@ -49,7 +49,7 @@ net.addLayer('probcls', dagnn.SoftMax(), 'predcls', 'probcls', {});
 net.addLayer('proposal2', dagnn.Proposal2(...
         'nSubclass', opts.nShape, 'confThresh', opts.confThresh, ...
         'subclassPos', opts.subclassPos, 'subclassNeg', opts.subclassNeg, ...
-        'bgThreshLo', opts.bgThreshLoSubclass, 'keep_neg_n', opts.keep_neg_n_subclass, 'singleRegress', opts.singleRegress, 'DEBUG', opts.DEBUG), ...
+        'bgThreshLo', opts.bgThreshLoSubclass, 'keep_neg_n', opts.keep_neg_n_subclass, 'debug', opts.debug), ...
         {'probcls', 'predbbox', 'rois', 'gtboxes', 'imsize'}, ...
         horzcat({'rois_sub', 'split_sub'}, labels2, targets2, instance_weights2));
 
@@ -89,11 +89,7 @@ net = initialize_param(net, 'fc7b_subclass', fc7b, 2, 0);
 net.addLayer('split_sub', dagnn.Split2(), {'drop7_sub', 'split_sub'}, drops2);
 
 % add leaf nodes
-if opts.singleRegress
-    net = init_subclass_single_regress(net, 'category', opts.category, 'nShape', opts.nShape);
-else
-    error('Not implemented.');
-end
+net = init_subclass_single_regress(net, 'category', opts.category, 'nShape', opts.nShape);
 
 net.rebuild();
 

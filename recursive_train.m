@@ -1,9 +1,11 @@
 function [net, info] = recursive_train(varargin)
-opts.DEBUG = false;
+% RECURSIVE_TRAIN: train the model
+
+opts.debug = false;
 opts.dataDir   = '/data/jingyanw/dataset/pascal/inst/' ;
 opts.expDir    = 'models/trash';
-opts.imdbPath  = fullfile('imdb/imdb-voc11inst.mat');
-opts.modelPath = '/data/jingyanw/pretrained/imagenet-vgg-verydeep-16.mat';
+opts.imdbPath  = fullfile('imdb', 'imdb-voc11inst.mat');
+opts.modelPath = 'data/pretrained/imagenet-vgg-verydeep-16.mat';
 opts.clusterPath = '/home/jingyanw/work/exemplar-pascal/analyze/clusters-gtbox.mat';
 opts.derOutputs = {};
 opts.rpnPos = 128;
@@ -19,14 +21,6 @@ opts.keep_neg_n = 500; % after RPN
 opts.keep_neg_n_subclass = 300; % after class
 opts.baseLR = 1;
 
-opts.multilabel = false;
-opts.randomize = false;
-opts.randomizeThreshPos = 0.7;
-% reduce to multi-class
-opts.mlHiThresh  = +Inf;
-opts.mlLoThresh = +Inf;
-opts.mlWeight = 1;
-opts.singleRegress = true;
 opts.randomSeed = 0;
 [opts, varargin] = vl_argparse(opts, varargin) ;
 
@@ -39,7 +33,7 @@ opts.train.continue = true ;
 opts.train.prefetch = false ; % does not help for single-image batches
 opts.train.learningRate = 1e-3 / 256 * [ones(1,5) 0.1*ones(1,2)];
 opts.train.weightDecay = 0.0005 ;
-opts.train.numEpochs = 12 ;
+opts.train.numEpochs = 7;
 opts.train.derOutputs = opts.derOutputs;
 opts.train.randomSeed = opts.randomSeed;
 opts.numFetchThreads = 2 ;
@@ -51,7 +45,7 @@ opts.train.expDir = opts.expDir ;
 opts.train.numEpochs = numel(opts.train.learningRate) ;
 
 % -------------------------------------------------------------------------
-%                                                   Database initialization
+% Database initialization
 % -------------------------------------------------------------------------
 if ~exist(opts.expDir,'dir')
   mkdir(opts.expDir);
@@ -79,19 +73,20 @@ end
 
 % use minival
 imdb = carve_minival(imdb);
-
-% generate multi-label
-% if opts.multilabel
-%     imdb = create_multilabel(imdb, 'hiThresh', opts.mlHiThresh, 'loThresh', opts.mlLoThresh);
-% end
 % -------------------------------------------------------------------------
-%                                                    Network initialization
+% Network initialization
 % -------------------------------------------------------------------------
-net = recursive_init('modelPath',opts.modelPath, 'nShape', imdb.clusters.num, 'confThresh', opts.confThresh, ...
-  'subclassPos', opts.subclassPos, 'subclassNeg', opts.subclassNeg, 'category', opts.category, 'bgThreshLo', opts.bgThreshLo, 'keep_neg_n', opts.keep_neg_n, 'keep_neg_n_subclass', opts.keep_neg_n_subclass, 'singleRegress', opts.singleRegress, 'DEBUG', opts.DEBUG, 'baseLR', opts.baseLR, 'classPos', opts.classPos, 'classNeg', opts.classNeg);
+net = recursive_init('modelPath',opts.modelPath, ...
+        'nShape', imdb.clusters.num, 'confThresh', opts.confThresh, ...
+        'subclassPos', opts.subclassPos, 'subclassNeg', opts.subclassNeg, ...
+        'category', opts.category, 'bgThreshLo', opts.bgThreshLo, ...
+        'keep_neg_n', opts.keep_neg_n, ...
+        'keep_neg_n_subclass', opts.keep_neg_n_subclass, ...
+        'debug', opts.debug, 'baseLR', opts.baseLR, ...
+        'classPos', opts.classPos, 'classNeg', opts.classNeg);
 
 % --------------------------------------------------------------------
-%                                                                Train
+% Train
 % --------------------------------------------------------------------
 % minibatch options
 bopts = net.meta.normalization;
@@ -106,32 +101,14 @@ bopts.prefetch = opts.train.prefetch;
 bopts.mode = 'train';
 bopts.rpnPos = opts.rpnPos;
 bopts.rpnNeg = opts.rpnNeg;
-bopts.randomize = opts.randomize;
-bopts.randomizeThreshPos = opts.randomizeThreshPos;
 
 anchors = generate_anchors();
-
-% warmup  here
-%{
-iter_warmup = 100;% 100 or 500 doesn't work
-warmup = opts.train;
-warmup.learningRate = opts.train.learningRate(1) / 10;
-warmup.numEpochs = 1;
-imdb_warmup = imdb;
-set_warmup = zeros(1, numel(imdb_warmup.images.set));
-set_warmup(randsample(find(imdb_warmup.images.set == 1), iter_warmup)) = 1;
-imdb_warmup.images.set = set_warmup;
-
-[net,info] = cnn_train_dag(net, imdb_warmup, @(i,b) getBatch(bopts,anchors, i,b), warmup);
-
-movefile(fullfile(opts.expDir, 'net-epoch-1.mat'), fullfile(opts.expDir, 'net-epoch-0.mat'));
-%}
 
 [net,info] = cnn_train_dag(net, imdb, @(i,b) getBatch(bopts,anchors, i,b), ...
                            opts.train) ;
 
 % test
-full_test_shape('imdbPath', opts.imdbPath, 'expDir', opts.expDir, 'gpu', opts.train.gpus, 'clusterPath', opts.clusterPath, 'reg2', true, 'singleRegress', opts.singleRegress);
+full_test_shape('imdbPath', opts.imdbPath, 'expDir', opts.expDir, 'gpu', opts.train.gpus, 'clusterPath', opts.clusterPath);
 fprintf('Done.\n');
 
 % --------------------------------------------------------------------
@@ -150,7 +127,9 @@ if opts.prefetch, return; end
 
 % RPN loss sampling
 H = size(im, 1); W = size(im, 2);
-[labels, targets, instance_weights] = generate_rpn_target('anchors', anchors, 'gtboxes', gtboxes(1:4, :)', 'imsize', [H, W], 'npos', opts.rpnPos, 'nneg', opts.rpnNeg);
+[labels, targets, instance_weights] = ...
+    generate_rpn_target('anchors', anchors, 'gtboxes', gtboxes(1:4, :)', ...
+                        'imsize', [H, W], 'npos', opts.rpnPos, 'nneg', opts.rpnNeg);
 
 if opts.useGpu > 0
   im = gpuArray(im) ;
@@ -159,4 +138,6 @@ if opts.useGpu > 0
   % TODO: does it make sense to make GTBOXES GpuArray?
 end
 
-inputs = {'input', im, 'rpn_labels', labels, 'rpn_targets', targets, 'rpn_instance_weights', instance_weights, 'imsize', [H, W], 'gtboxes', gtboxes} ;
+inputs = {'input', im, 'rpn_labels', labels, 'rpn_targets', targets, ...
+          'rpn_instance_weights', instance_weights, 'imsize', [H, W], ...
+          'gtboxes', gtboxes} ;
