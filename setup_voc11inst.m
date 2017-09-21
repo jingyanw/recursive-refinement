@@ -1,7 +1,7 @@
 function imdb = setup_voc11inst(varargin)
 % SETUP_VOC11INST: Setup PASCAL VOC 2011-inst data.
 
-opts.instAnno = true; % true: inst-derived boxes, false: orig det boxes
+opts.instAnno = true; % true: mask-derived boxes | false: original detection boxes
 [opts, varargin] = vl_argparse(opts, varargin);
 
 % -------------------------------------------------------------------------

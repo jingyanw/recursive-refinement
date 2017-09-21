@@ -1,5 +1,5 @@
 function [net, info] = recursive_train(varargin)
-% RECURSIVE_TRAIN: the main function to train the model
+% RECURSIVE_TRAIN: Train the model.
 
 opts.debug = false;
 opts.dataDir   = '/data/jingyanw/dataset/pascal/inst/' ;

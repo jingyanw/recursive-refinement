@@ -1,4 +1,5 @@
-function imdb = cnn_setup_data_voc11inst_faster_cluster(varargin)
+function imdb = setup_imdb_voc11inst(varargin)
+% SETUP_IMDB_VOC11INST: Set up the imdb.
 
 opts.clusterPath = '';
 opts = vl_argparse(opts, varargin) ;
@@ -13,8 +14,7 @@ imdb.classes.name = {'aeroplane', 'bicycle', 'bird', 'boat', 'bottle',...
                'pottedplant', 'sheep', 'sofa', 'train', 'tvmonitor'};
 
 imdb.imageDir = '/data/jingyanw/dataset/pascal/inst/img/' ;
-imdb.segPath = strrep(imdb.imageDir, 'img', 'cls-png');
-imdb.segPath = fullfile(imdb.segPath, '%s.png');
+imdb.segPath = strrep(imdb.imageDir, 'img', 'cls-png', '%s.png');
 imdb.instPath = strrep(imdb.segPath, 'cls-png', 'inst-png');
 
 imdb.clusters.path = opts.clusterPath;
@@ -52,8 +52,9 @@ for thisSet = {'train', 'val'}
 
   % Load ground truth objects
   start = tic;
-  parfor i=1:length(gtids)
+
   % for i=1:length(gtids)
+  parfor i=1:length(gtids)
     % Read annotation
     [boxes_inst, labels_inst, size_inst, ~, ~, iou_cluster, iou_cluster_flip] = read_record(imdb, gtids{i}, clusters); % boxes: Mx4
 

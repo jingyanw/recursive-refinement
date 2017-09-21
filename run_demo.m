@@ -1,14 +1,14 @@
 function run_demo(varargin)
 % RUN_DEMO: Run a trained model on a single image.
+
 opts.gpu = [1] ;
 
-opts.modelPath = 'models/full-latest-format/net-epoch-4.mat'; % TODO: use updated path
+opts.modelPath = 'data/models/shape-thresh25-vgg16-epoch7.mat';
 opts.clusterPath = 'data/clusters/clusters-shape-thresh25.mat';
+
 opts.top1 = 300;
 opts.top2 = 100;
 opts.confThresh = 0.9;
-[opts, varargin] = vl_argparse(opts, varargin) ;
-
 opts.nmsThresh = 0.3 ;
 opts.maxPerImage = 100 ;
 
