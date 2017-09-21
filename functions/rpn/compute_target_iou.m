@@ -1,14 +1,21 @@
 function ovlp = compute_target_iou(anchors, gtboxes)
-% ANCHORS: [H, W, A, 4]
-% BOXES: [G, 4]
+% COMPUTE_TARGET_IOU: Compute the IOU between the anchor boxes and 
+%   the ground-truth boxes.
+%
+%   Inputs:
+%     ANCHORS: [H, W, A, 4]
+%     BOXES: [G, 4]
 
-% OVLP: [H, W, A, G]
+%   Outputs:
+%     OVLP: [H, W, A, G]
 
 G = size(gtboxes, 1);
 boxes = reshape(gtboxes, [1, 1, 1, G, 4]);
 
-ovlp_w = bsxfun(@min, anchors(:, :, :, 3), boxes(:, :, :, :, 3)) - bsxfun(@max, anchors(:, :, :, 1), boxes(:, :, :, :, 1)) + 1;
-ovlp_h = bsxfun(@min, anchors(:, :, :, 4), boxes(:, :, :, :, 4)) - bsxfun(@max, anchors(:, :, :, 2), boxes(:, :, :, :, 2)) + 1;
+ovlp_w = bsxfun(@min, anchors(:, :, :, 3), boxes(:, :, :, :, 3)) - ...
+         bsxfun(@max, anchors(:, :, :, 1), boxes(:, :, :, :, 1)) + 1;
+ovlp_h = bsxfun(@min, anchors(:, :, :, 4), boxes(:, :, :, :, 4)) - ...
+         bsxfun(@max, anchors(:, :, :, 2), boxes(:, :, :, :, 2)) + 1;
 ovlp_w = max(ovlp_w, 0); ovlp_h = max(ovlp_h, 0);
 area_ovlp = ovlp_w .* ovlp_h; % [H, W, A, G]
 

@@ -1,5 +1,5 @@
 function [net, info] = recursive_train(varargin)
-% RECURSIVE_TRAIN: train the model
+% RECURSIVE_TRAIN: the main function to train the model
 
 opts.debug = false;
 opts.dataDir   = '/data/jingyanw/dataset/pascal/inst/' ;
@@ -19,6 +19,7 @@ opts.category = 1:20;
 opts.bgThreshLo = 0; % 0.1: hard-mining
 opts.keep_neg_n = 500; % after RPN
 opts.keep_neg_n_subclass = 300; % after class
+opts.rpn_sigma = 1;
 opts.baseLR = 1;
 
 opts.randomSeed = 0;
@@ -82,8 +83,9 @@ net = recursive_init('modelPath',opts.modelPath, ...
         'category', opts.category, 'bgThreshLo', opts.bgThreshLo, ...
         'keep_neg_n', opts.keep_neg_n, ...
         'keep_neg_n_subclass', opts.keep_neg_n_subclass, ...
-        'debug', opts.debug, 'baseLR', opts.baseLR, ...
-        'classPos', opts.classPos, 'classNeg', opts.classNeg);
+        'baseLR', opts.baseLR, 'rpn_sigma', opts.rpn_sigma, ...
+        'classPos', opts.classPos, 'classNeg', opts.classNeg, ...
+        'debug', opts.debug);
 
 % --------------------------------------------------------------------
 % Train
@@ -93,8 +95,6 @@ bopts = net.meta.normalization;
 bopts.useGpu = numel(opts.train.gpus) >  0 ;
 bopts.maxScale = 1000;
 bopts.scale = 600;
-bopts.bgLabel = numel(imdb.classes.name)+1;
-bopts.visualize = 0;
 bopts.interpolation = net.meta.normalization.interpolation;
 bopts.numThreads = opts.numFetchThreads;
 bopts.prefetch = opts.train.prefetch;

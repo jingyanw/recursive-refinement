@@ -1,13 +1,12 @@
 function imdb = setup_voc11inst(varargin)
-% SETUP_VOC11INST Setup PASCAL VOC 2011-inst data
+% SETUP_VOC11INST: Setup PASCAL VOC 2011-inst data.
 
 opts.instAnno = true; % true: inst-derived boxes, false: orig det boxes
 [opts, varargin] = vl_argparse(opts, varargin);
 
 % -------------------------------------------------------------------------
-%                                                  Load categories metadata
+% Load categories metadata
 % -------------------------------------------------------------------------
-
 imdb.classes.name ={'aeroplane', 'bicycle', 'bird', 'boat', 'bottle',...
                'bus','car', 'cat', 'chair', 'cow',...
                'diningtable', 'dog', 'horse', 'motorbike', 'person',...
@@ -24,7 +23,7 @@ if ~opts.instAnno
 end
 
 % -------------------------------------------------------------------------
-%                                                                    Images
+% Images
 % -------------------------------------------------------------------------
 
 k = 0 ;
@@ -32,7 +31,7 @@ for thisSet = {'train', 'val'}
   thisSet = char(thisSet) ;
 
   fprintf('Loading PASCAL VOC %s set\n', thisSet) ;
-  [gtids,t]=textread(sprintf('/data/jingyanw/dataset/pascal/inst/%s.txt',thisSet),'%s %d');
+  [gtids,t] = textread(sprintf('/data/jingyanw/dataset/pascal/inst/%s.txt',thisSet),'%s %d');
 
   k = k + 1 ;
   imdb_.images.name{k} = strcat(gtids,'.jpg');

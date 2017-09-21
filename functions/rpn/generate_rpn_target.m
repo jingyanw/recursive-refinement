@@ -1,4 +1,10 @@
-function [labels, targets, weights] = full_generate_anchor_target(varargin)
+function [labels, targets, weights] = generate_rpn_target(varargin)
+% GENERATE_RPN_TARGET: compute the RPN targets.
+%   Outputs:
+%     LABELS: [H, W, A] 0 == ignore, 1 == pos, -1 == neg (A is the number of anchor boxes)
+%     TARGETS: [H, W, 4A] regression targets
+%     WEIGHTS: [H, W, 4A] mask to keep the regression targets associated with positive anchor boxes
+
 opts.debug = false;
 [opts, varargin] = vl_argparse(opts, varargin);
 
@@ -113,4 +119,13 @@ if opts.debug
     fprintf('RPN mean: %.3f\n', mean(ts));
     fprintf('RPN std: %.3f\n', std(ts));
     keyboard;
+end
+
+function [h, w] = compute_conv5_size(h, w)
+% COMPUTE_CONV5_SIZE: Given an image of size [H, W], 
+%   compute the size of its activation after conv5.
+
+for i = 1 : 4
+    h = floor((h + 1) / 2); % pad 1
+    w = floor((w + 1) / 2); % pad 1
 end

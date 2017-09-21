@@ -1,5 +1,11 @@
 function [boxes, labels, sizes, shapes, shapes_flip, ious_cluster, ious_cluster_flip] = read_record(imdb, name, clusters)
-% NAME: e.g. 2008_000008
+% READ_RECORD: For each image, read it and output the objects associated 
+%   with their boxes, class labels, sizes. For each object, assign it to 
+%   a cluster based on its shape, and assign its flipped version to 
+%   a cluster based on its shape.
+               
+%   Inputs:
+%     NAME: string of the PASCAL identifier (e.g. 2008_000008)
 
 clsMap = imread(sprintf(imdb.segPath, name));
 instMap = imread(sprintf(imdb.instPath, name));

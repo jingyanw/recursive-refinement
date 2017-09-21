@@ -1,5 +1,6 @@
 dbstop if error;
 addpath bin;
+addpath data/devkit/VOCdevkit/VOCcode;
 addpath(genpath('functions'));
 
 run matconvnet/matlab/vl_setupnn;

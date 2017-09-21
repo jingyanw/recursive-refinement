@@ -1,4 +1,6 @@
 function net = recursive_init(varargin)
+% RECURSIVE_INIT: initialize the architecture of the hierarchical model
+
 opts.debug = false;
 
 % OPTS: Faster-RCNN
@@ -7,14 +9,13 @@ opts.nCls = 21;
 opts.bgThreshLo = 0;
 opts.classPos = 128;
 opts.classNeg = 128;
-opts.subclassPos = 128;
-opts.subclassNeg = 128;
-opts.keep_neg_n = +Inf;
 opts.baseLR = 1;
+opts.rpn_sigma = 1;
+opts.keep_neg_n = +Inf;
 [opts, varargin] = vl_argparse(opts, varargin);
 
 % init Faster-RCNN backbone
-net = init_faster_rcnn_backbone(opts);
+net = faster_rcnn_backbone_init(opts);
 for p = 1 : net.getParamIndex('conv5_3b') % conv1 - conv5
     net.params(p).learningRate = net.params(p).learningRate * opts.baseLR;
 end
@@ -23,6 +24,8 @@ end
 opts.nShape = 0;
 opts.confThresh = -Inf;
 opts.category = [];
+opts.subclassPos = 128;
+opts.subclassNeg = 128;
 opts.bgThreshLoSubclass = 0;
 opts.keep_neg_n_subclass = +Inf;
 

@@ -26,7 +26,7 @@ classdef Proposal < dagnn.Layer
   end
 
   methods
-    % inputs:
+    % Inputs:
     % inputs{1} rpn_prob: [H, W, A]
     % inputs{2} rpn_reg: [H, W, 4A]
     % inputs{3} gtboxes: [left, top, right, bottom, class, shape(s)]
@@ -36,7 +36,7 @@ classdef Proposal < dagnn.Layer
     % params:
     % none
 
-    % outputs:
+    % Outputs:
     % outputs{1} rois: 5 x P [gpuArray]
     % outputs{2} [TRAIN] label: 1 x P (multi-class)
     %            [TEST] probs: 1 x P (probabilities)

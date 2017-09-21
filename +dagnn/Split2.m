@@ -12,8 +12,15 @@ classdef Split2 < dagnn.ElementWise
 
       s = num2cell(size(inputs{1}));
       s{obj.dim} = split;
-      outputs = mat2cell(inputs{1}, s{:});
-      outputs = squeeze(outputs);
+      if length(size(inputs{1})) == 3 % corner case: singleton
+        idx = find(split);
+        assert(numel(idx) == 1);
+        outputs = cell(1, numel(split));
+        outputs{idx} = inputs{1};
+      else
+        outputs = mat2cell(inputs{1}, s{:});
+        outputs = squeeze(outputs);
+      end
     end
 
     function [derInputs, derParams] = backward(obj, inputs, params, derOutputs)

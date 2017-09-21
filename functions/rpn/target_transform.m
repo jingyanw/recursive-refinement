@@ -1,5 +1,6 @@
 function outputs = target_transform(inputs)
 % inputs: [H, W, 4 * N]
+% outputs: [H, W, 4 * N]
 
 N = size(inputs, 3);
 assert(mod(N, 4) == 0);

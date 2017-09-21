@@ -102,8 +102,13 @@ classdef Proposal2 < dagnn.Layer
                 end
 
                 rois_c = [ones(1, numel(keep)); rois_c(:, keep)];
-                outputs{c} = gpuArray(rois_c);
-                outputs{C + c} = probs_c(:, keep);
+                R = size(rois_c, 2);
+                rois_all = [rois_all, rois_c];
+                split(c) = R;
+                outputs{2 + c} = probs_c(:, keep);
+
+                outputs{1} = gpuArray(rois_all);
+                outputs{2} = split;
                 continue;
             end
             gt_select = (gt_classes == c);
@@ -118,7 +123,6 @@ classdef Proposal2 < dagnn.Layer
             [ious_c, gt_assignments] = max(ovlp, [], 2);
             
             labels_c = gt_subclasses_c(:, gt_assignments);
-
 
             if ~any(gt_select) % no iou computed
                 pos = [];

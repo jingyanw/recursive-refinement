@@ -1,4 +1,5 @@
 function anchors = generate_anchors()
+% GENERATE_ANCHORS: generate the 9 anchor boxes as defined in Faster-RCNN.
 % https://github.com/rbgirshick/py-faster-rcnn/blob/master/lib/rpn/generate_anchors.py
 
 BASE_SIZE = 16;

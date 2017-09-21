@@ -1,6 +1,7 @@
-function net = init_faster_rcnn(varargin)
+function net = faster_rcnn_backbone_init(varargin)
+% FASTER_RCNN_BACKBONE_INIT: initialize the Faster-RCNN model
 opts.debug = false;
-opts.modelPath = '/data/jingyanw/pretrained/imagenet-vgg-verydeep-16.mat';
+opts.modelPath = 'data/pretrained/imagenet-vgg-verydeep-16.mat';
 opts.nCls = 21;
 opts.bgThreshLo = 0;
 opts.classPos = 128;
@@ -11,7 +12,7 @@ opts.keep_neg_n = +Inf;
 [opts, varargin] = vl_argparse(opts, varargin) ;
 display(opts) ;
 
-% Load an imagenet pre-trained cnn model.
+% Load the pretrained ImageNet VGG-16 model.
 net = load(opts.modelPath);
 net = vl_simplenn_tidy(net);
 
@@ -33,7 +34,7 @@ net.layers{fc8p}.weights{2} = zeros(1, opts.nCls, 'single');
 pPool5 = find(cellfun(@(a) strcmp(a.name, 'pool5'), net.layers)==1);
 net.layers = net.layers([1:pPool5-1,pPool5+1:end-1]);
 
-% Convert to DagNN.
+% Convert to DagNN
 net = dagnn.DagNN.fromSimpleNN(net, 'canonicalNames', true) ;
 
 %% RPN
@@ -78,7 +79,7 @@ net.addLayer('loss_rpn_reg', dagnn.LossSmoothL1('sigma', opts.rpn_sigma), ...
 net.addLayer('rpn_prob', dagnn.Sigmoid(), 'rpn_score', 'rpn_prob');
 net.addLayer('proposal', dagnn.Proposal('bgThreshLo', opts.bgThreshLo, ...
         'classPos', opts.classPos, 'classNeg', opts.classNeg, ...
-        'bboxStd', opts.bboxStd, 'keep_neg_n', opts.keep_neg_n), ...
+        'bboxStd', opts.bboxStd, 'keep_neg_n', opts.keep_neg_n, ...
         'debug', opts.debug), ...
     {'rpn_prob', 'rpn_reg', 'gtboxes', 'imsize'}, ...
     {'rois', 'label', 'targets', 'instance_weights'});
@@ -133,7 +134,8 @@ net.meta.normalization.averageImage = ...
 
 net.meta.normalization.interpolation = 'bilinear';
 
-net.meta.classes.name = {'aeroplane', 'bicycle', 'bird', ...
-    'boat', 'bottle', 'bus', 'car', 'cat', 'chair', 'cow', 'diningtable', ...
-    'dog', 'horse', 'motorbike', 'person', 'pottedplant', 'sheep', ...
-    'sofa', 'train', 'tvmonitor', 'background' };
+net.meta.classes.name = {'aeroplane', 'bicycle', 'bird', 'boat', 'bottle', ...
+    'bus', 'car', 'cat', 'chair', 'cow', ...
+    'diningtable', 'dog', 'horse', 'motorbike', 'person', ...
+    'pottedplant', 'sheep', 'sofa', 'train', 'tvmonitor', ...
+    'background' };
