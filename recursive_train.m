@@ -4,7 +4,7 @@ function [net, info] = recursive_train(varargin)
 opts.debug = false;
 opts.dataDir   = '/data/jingyanw/dataset/pascal/inst/' ;
 opts.expDir    = 'models/trash';
-opts.imdbPath  = fullfile('imdb', 'imdb-voc11inst.mat');
+opts.imdbPath  = 'data/imdb/imdb-voc11inst-shape-thresh25.mat');
 opts.modelPath = 'data/pretrained/imagenet-vgg-verydeep-16.mat';
 opts.clusterPath = '/home/jingyanw/work/exemplar-pascal/analyze/clusters-gtbox.mat';
 opts.derOutputs = {};
@@ -67,6 +67,7 @@ else
 end
 fprintf('done.\n');
 
+% TODO: delete following
 scratchDir = '/scratch/jingyanw/dataset/pascal/inst/img/';
 if exist(scratchDir, 'dir')
     imdb.imageDir = scratchDir;

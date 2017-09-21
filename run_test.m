@@ -1,6 +1,6 @@
 % RUN_TEST: script to test the model
-gpus = [4];
+gpus = [2];
 
-expDir = 'models/full-latest-format';
+expDir = 'models/final-once-more';
 
 recursive_test('expDir', expDir, 'gpu', gpus, 'top1', 300, 'top2', 100, 'conf_subcls', true);

@@ -1,7 +1,7 @@
 % RUN_TRAIN: Script to train the model.
 
 gpus = [4];
-imdbPath25 = 'data/imdb-voc11inst-shape-thresh0.25.mat';
+imdbPath25 = 'data/imdb/imdb-voc11inst-shape-thresh25.mat';
 % clusters
 clusterPath25 = 'data/clusters/clusters-shape-thresh25.mat'; % 1142
 

@@ -3,7 +3,6 @@ addpath bin;
 addpath data/devkit/VOCdevkit/VOCcode;
 addpath(genpath('functions'));
 
-matconvnetDir = 'matconvnet-recursive';
-run(fullfile(matconvnetDir, 'matlab/vl_setupnn'));
-addpath(fullfile(matconvnetDir, 'examples/fast_rcnn'));
-addpath(fullfile(matconvnetDir, 'examples/fast_rcnn/bbox_functions'));
+run matconvnet/matlab/vl_setupnn;
+addpath matconvnet/examples/fast_rcnn;
+addpath matconvnet/examples/fast_rcnn/bbox_functions;

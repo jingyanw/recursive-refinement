@@ -3,7 +3,7 @@ function recursive_test(varargin)
 
 opts.expDir = '';
 opts.clusterPath = 'data/clusters/clusters-shape-thresh25.mat';
-opts.imdbPath = 'data/imdb-voc11inst-shape-thresh0.25.mat';
+opts.imdbPath = 'data/imdb/imdb-voc11inst-shape-thresh25.mat';
 opts.epoch = 0;
 opts.top1 = 300;
 opts.top2 = 100;
@@ -130,7 +130,6 @@ for t = 1: numel(testIdx)
     % TODO: use the actual joint subclass probs
  
     [~, subcls_idx] = max(probs_subcls(1:end - 1, :), [], 1);
-    if cls == 1, keyboard; end
     factor = max(bopts.scale / im_h, bopts.scale / im_w);
     if any([im_h*factor, im_w*factor] > bopts.maxScale)
       factor = min(bopts.maxScale / im_h, bopts.maxScale / im_w);
