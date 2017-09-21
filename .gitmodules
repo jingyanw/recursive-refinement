@@ -1,0 +1,3 @@
+[submodule "matconvnet-recursive"]
+	path = matconvnet-recursive
+	url = git@github.com:jingyanw/matconvnet-recursive.git
