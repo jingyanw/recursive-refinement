@@ -23,16 +23,16 @@ if ~exist('data/VOCdevkit/VOCcode')
     untar('http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCdevkit_18-May-2011.tar', 'data');
 end
 
-% SDS augmentation
-SDSDir = 'data/VOCdevkit/SDS';
-if ~exist(SDSDir)
+% SBD augmentation
+SBDDir = 'data/VOCdevkit/VOC-SBD';
+if ~exist(SBDDir)
     fprintf('Prepare PASCAL-VOC (sds augmentation)...\n');
     mkdir_if_not_exists('data/tmp');
     websave('data/tmp/sds.tgz', 'http://www.eecs.berkeley.edu/Research/Projects/CS/vision/grouping/semantic_contours/benchmark.tgz');
     untar('data/tmp/sds.tgz', 'data/tmp');
-    movefile('data/tmp/benchmark_RELEASE/dataset', SDSDir);
-    mat2png(SDSDir, 'cls', labelColors(21));
-    mat2png(SDSDir, 'inst', labelColors(35));
+    movefile('data/tmp/benchmark_RELEASE/dataset', SBDDir);
+    mat2png(SBDDir, 'cls', labelColors(21));
+    mat2png(SBDDir, 'inst', labelColors(35));
 end
 
 fprintf('Done.\n');

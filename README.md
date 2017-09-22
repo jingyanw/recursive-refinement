@@ -30,7 +30,7 @@ Run `download.m` to download the following data to `$ROOT/data`:
   ```
   VOCdevkit/VOC2012
   VOCdevkit/VOCcode
-  VOCdevkit/SDS
+  VOCdevkit/VOC-SBD
   ```
 - A trained VGG-16 model:
 

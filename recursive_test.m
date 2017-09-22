@@ -207,7 +207,7 @@ gpuDevice([]);
 VOCdevkitPath = 'data/VOCdevkit';
 
 % fix voc folders
-VOCopts.imgsetpath = 'data/VOCdevkit/SDS/%s.txt';
+VOCopts.imgsetpath = 'data/VOCdevkit/VOC-SBD/%s.txt';
 VOCopts.annopath   = 'data/VOCdevkit/VOC2012/Annotations/%s.xml';
 VOCopts.localdir   = fullfile(VOCdevkitPath, 'local','inst');
 VOCopts.annocachepath = fullfile(VOCopts.localdir, '%s_anno.mat');
@@ -216,7 +216,7 @@ mkdir_if_not_exists(VOCopts.localdir);
 
 % inst eval
 % ---
-gtPath = 'data/VOCdevkit/SDS/gt_inst_val.mat';
+gtPath = 'data/VOCdevkit/VOC-SBD/gt_inst_val.mat';
 if ~exist(gtPath)
     setup_inst_gt(imdb);
 end

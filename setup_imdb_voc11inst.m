@@ -11,7 +11,7 @@ imdb.classes.name = {'aeroplane', 'bicycle', 'bird', 'boat', 'bottle',...
                'diningtable', 'dog', 'horse', 'motorbike', 'person',...
                'pottedplant', 'sheep', 'sofa', 'train', 'tvmonitor'};
 
-imdb.imageDir = 'data/VOCdevkit/SDS/img/' ;
+imdb.imageDir = 'data/VOCdevkit/VOC-SBD/img/' ;
 imdb.segPath = strrep(imdb.imageDir, 'img', 'cls-png', '%s.png');
 imdb.instPath = strrep(imdb.segPath, 'cls-png', 'inst-png');
 
@@ -34,7 +34,7 @@ for thisSet = {'train', 'val'}
   thisSet = char(thisSet) ;
 
   fprintf('Loading PASCAL VOC %s set\n', thisSet) ;
-  [gtids,t]=textread(sprintf('data/VOCdevkit/SDS/%s.txt',thisSet),'%s %d');
+  [gtids,t]=textread(sprintf('data/VOCdevkit/VOC-SBD/%s.txt',thisSet),'%s %d');
 
   k = k + 1 ;
   imdb_.images.name{k} = strcat(gtids,'.jpg');
