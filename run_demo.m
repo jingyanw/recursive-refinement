@@ -4,6 +4,7 @@ function run_demo(varargin)
 opts.gpu = [1] ;
 
 opts.modelPath = 'data/models/shape-thresh25-vgg16-epoch7.mat';
+opts.modelPath = 'models/final-once-more/net-epoch-3.mat';
 opts.clusterPath = 'data/clusters/clusters-shape-thresh25.mat';
 
 opts.top1 = 300;
@@ -11,9 +12,6 @@ opts.top2 = 100;
 opts.confThresh = 0.9;
 opts.nmsThresh = 0.3 ;
 opts.maxPerImage = 100 ;
-
-% ablations
-opts.conf_subcls = true;
 [opts, varargin] = vl_argparse(opts, varargin) ;
 
 display(opts) ;
@@ -75,38 +73,28 @@ inst.conf = zeros(1, 0);
 inst.offset = zeros(0, 2);
 inst.objMap = cell(0, 1);
 for cls = 1 : nCls
-  pred_box = pred_boxes{cls};
+  pred_box = pred_boxes{cls}(:, 2:5);
   probs_cls = net.vars(probClsVars(cls)).value; % cls prob
   probs_subcls = squeeze(gather(net.vars(probSubclsVars(cls)).value)); % subcls prob
   box_deltas = squeeze(gather(net.vars(deltaVars(cls)).value));
 
   % regress from scaled box
   if isempty(pred_box), continue; end
-  bboxes = pred_box(:, 2:5);
 
-  if opts.conf_subcls
-      conf =  probs_cls .* (1 - probs_subcls(end, :)); % joint
-  else
-      conf = probs_cls;
-  end
-  % TODO: use the actual joint subclass probs
+  conf =  probs_cls .* (1 - probs_subcls(end, :)); % joint
+  % maxPerImage before NMS
+  [~, si] = sort(conf, 'descend');
+  si = si(1:min(numel(si), opts.maxPerImage));
+  pred_box = pred_box(si, :);
+  probs_cls = probs_cls(si);
+  probs_subcls = probs_subcls(:, si);
+  box_deltas = box_deltas(:, si);
+  conf = conf(si);
 
   [~, subcls_idx] = max(probs_subcls(1:end - 1, :), [], 1);
-  bboxes = bbox_clip(round(bboxes), [H, W]); 
+  pred_box = bbox_clip(round(pred_box), [H, W]); 
 
-  boxscore = [bboxes conf'];
-
-  % threshold on the final/joint probability
-  % conf_select = (conf > opts.confThresh);
-  % boxscore = boxscore(conf_select, :);
-  % subcls_idx = subcls_idx(conf_select);
-  % conf = conf(conf_select);
-  
-  % [~,si] = sort(boxscore(:,5),'descend');
-  % boxscore = boxscore(si,:);
-  % boxscore = boxscore(1:min(size(boxscore,1),opts.maxPerImage),:);
-  % shape_idx = shape_idx(si);
-  % shape_delta = shape_deltas(:, si);
+  boxscore = [pred_box conf'];
 
   M = numel(conf);
   for m = 1 : M

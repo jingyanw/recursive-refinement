@@ -19,9 +19,6 @@ opts.gpu = [] ;
 opts.numFetchThreads = 1 ;
 opts.nmsThresh = 0.3 ;
 opts.maxPerImage = 100 ;
-
-% ablations
-opts.conf_subcls = true;
 [opts, varargin] = vl_argparse(opts, varargin) ;
 
 display(opts) ;
@@ -112,22 +109,24 @@ for t = 1: numel(testIdx)
   split = gather(net.vars(splitVar).value);
   pred_boxes = mat2cell(pred_boxes, split, 5);
   for cls = 1 : nCls
-    pred_box = pred_boxes{cls};
+    pred_box = pred_boxes{cls}(:, 2:5);
     probs_cls = net.vars(probClsVars(cls)).value; % cls prob
     probs_subcls = squeeze(gather(net.vars(probSubclsVars(cls)).value)); % subcls prob
     box_deltas = squeeze(gather(net.vars(deltaVars(cls)).value));
 
     % regress from scaled box
     if isempty(pred_box), continue; end
-    % fprintf('#: %d\n', size(pred_box, 1));
-    pred_box = pred_box(:, 2:5);
  
-    if opts.conf_subcls
-        conf =  probs_cls .* (1 - probs_subcls(end, :)); % joint
-    else
-        conf = probs_cls;
-    end
-    % TODO: use the actual joint subclass probs
+    conf =  probs_cls .* (1 - probs_subcls(end, :)); % joint
+
+    % maxPerImage before NMS
+    [~, si] = sort(conf, 'descend');
+    si = si(1:min(numel(si), opts.maxPerImage));
+    pred_box = pred_box(si, :);
+    probs_cls = probs_cls(si);
+    probs_subcls = probs_subcls(:, si);
+    box_deltas = box_deltas(:, si);
+    conf = conf(si);
  
     [~, subcls_idx] = max(probs_subcls(1:end - 1, :), [], 1);
     factor = max(bopts.scale / im_h, bopts.scale / im_w);
@@ -141,18 +140,6 @@ for t = 1: numel(testIdx)
     bboxes = bbox_clip(round(bboxes), im_size); 
   
     boxscore = [bboxes conf'];
-
-    % threshold on the final/joint probability
-    % conf_select = (conf > opts.confThresh);
-    % boxscore = boxscore(conf_select, :);
-    % subcls_idx = subcls_idx(conf_select);
-    % conf = conf(conf_select);
-    
-    % [~,si] = sort(boxscore(:,5),'descend');
-    % boxscore = boxscore(si,:);
-    % boxscore = boxscore(1:min(size(boxscore,1),opts.maxPerImage),:);
-    % shape_idx = shape_idx(si);
-    % shape_delta = shape_deltas(:, si);
 
     M = numel(conf);
     for m = 1 : M
@@ -218,7 +205,7 @@ gpuDevice([]);
 VOCdevkitPath = fullfile('data/devkit', 'VOCdevkit');
 
 % fix voc folders
-VOCopts.imgsetpath = '/data/jingyanw/dataset/pascal/inst/%s.txt';
+VOCopts.imgsetpath = 'data/voc11-inst/%s.txt';
 VOCopts.annopath   = '/data/jingyanw/dataset/pascal/voc11/Annotations/%s.xml';
 VOCopts.localdir   = fullfile(VOCdevkitPath, 'local','inst');
 VOCopts.annocachepath = fullfile(VOCopts.localdir, '%s_anno.mat');

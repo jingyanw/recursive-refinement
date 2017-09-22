@@ -13,7 +13,7 @@ imdb.classes.name = {'aeroplane', 'bicycle', 'bird', 'boat', 'bottle',...
                'diningtable', 'dog', 'horse', 'motorbike', 'person',...
                'pottedplant', 'sheep', 'sofa', 'train', 'tvmonitor'};
 
-imdb.imageDir = '/data/jingyanw/dataset/pascal/inst/img/' ;
+imdb.imageDir = 'data/voc11-inst/img/' ;
 imdb.segPath = strrep(imdb.imageDir, 'img', 'cls-png', '%s.png');
 imdb.instPath = strrep(imdb.segPath, 'cls-png', 'inst-png');
 
@@ -87,7 +87,7 @@ imdb.boxes.gtdist = vertcat(imdb_.boxes.gtdist{:});
 imdb.boxes.gtdistflip = vertcat(imdb_.boxes.gtdistflip{:});
 
 % -------------------------------------------------------------------------
-%                                                                   Flipped
+% Flipped
 % -------------------------------------------------------------------------
 imdb.boxes.flip = zeros(size(imdb.images.name));
 
