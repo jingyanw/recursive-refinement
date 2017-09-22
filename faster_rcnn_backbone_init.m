@@ -1,5 +1,6 @@
 function net = faster_rcnn_backbone_init(varargin)
 % FASTER_RCNN_BACKBONE_INIT: initialize the Faster-RCNN model
+
 opts.debug = false;
 opts.modelPath = 'data/pretrained/imagenet-vgg-verydeep-16.mat';
 opts.nCls = 21;
@@ -105,7 +106,8 @@ pdrop7 = (arrayfun(@(a) strcmp(a.name, 'drop7'), net.layers)==1);
 net.addLayer('predbbox',dagnn.Conv('size',[1 1 size(net.params(pparFc8).value,3) 84],'hasBias', true), ...
   net.layers(pdrop7).outputs{1},'predbbox',{'predbboxf','predbboxb'});
 
-net.params(end-1).value = 0.001 * randn(1,1,size(net.params(pparFc8).value,3),84,'single');
+net.params(end-1).value = ...
+    0.001 * randn(1,1,size(net.params(pparFc8).value,3),84,'single');
 net.params(end).value = zeros(1,84,'single');
 
 net.addLayer('lossbbox',dagnn.LossSmoothL1(), ...
@@ -133,7 +135,6 @@ net.meta.normalization.averageImage = ...
   reshape([122.7717 102.9801 115.9465],[1 1 3]);
 
 net.meta.normalization.interpolation = 'bilinear';
-
 net.meta.classes.name = {'aeroplane', 'bicycle', 'bird', 'boat', 'bottle', ...
     'bus', 'car', 'cat', 'chair', 'cow', ...
     'diningtable', 'dog', 'horse', 'motorbike', 'person', ...

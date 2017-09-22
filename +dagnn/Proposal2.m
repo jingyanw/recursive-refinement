@@ -160,9 +160,8 @@ classdef Proposal2 < dagnn.Layer
             end
                 
             if npos > 0 && obj.debug
-                fprintf('[proposal2] cat #%d - loss sampling -- pos: %d/%d | neg: %d/%d\n', c, numel(pos), npos, ...
-                    numel(neg), nneg);
-                % keyboard
+                fprintf('[proposal2] cat #%d - loss sampling -- pos: %d/%d | neg: %d/%d\n', ...
+                        c, numel(pos), npos, numel(neg), nneg);
             end
 
             labels_c(neg) = bglabel;
@@ -176,12 +175,10 @@ classdef Proposal2 < dagnn.Layer
             targets_c = bsxfun(@minus, targets_c, obj.bboxMean2');
             targets_c = bsxfun(@rdivide, targets_c, obj.bboxStd2');
 
-            % outputs{c} = gpuArray(rois_c);
             outputs{2 + c} = labels_c;
-            % if npos == 0, keyboard; end
-                
+ 
             R = size(rois_c, 2); % total number of ROIs
-            % multi-class
+            
             targets = zeros(1, 1, 4, R, 'single');
             instance_weights = zeros(1, 1, 4, R, 'single');
             for r = 1 : R

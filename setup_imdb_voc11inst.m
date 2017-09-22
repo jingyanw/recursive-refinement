@@ -4,16 +4,14 @@ function imdb = setup_imdb_voc11inst(varargin)
 opts.clusterPath = '';
 opts = vl_argparse(opts, varargin) ;
 
-% -------------------------------------------------------------------------
-%                                                  Load categories metadata
-% -------------------------------------------------------------------------
-
+% load meta-data
+% ------
 imdb.classes.name = {'aeroplane', 'bicycle', 'bird', 'boat', 'bottle',...
                'bus','car', 'cat', 'chair', 'cow',...
                'diningtable', 'dog', 'horse', 'motorbike', 'person',...
                'pottedplant', 'sheep', 'sofa', 'train', 'tvmonitor'};
 
-imdb.imageDir = 'data/voc11-inst/img/' ;
+imdb.imageDir = 'data/VOCdevkit/SDS/img/' ;
 imdb.segPath = strrep(imdb.imageDir, 'img', 'cls-png', '%s.png');
 imdb.instPath = strrep(imdb.segPath, 'cls-png', 'inst-png');
 
@@ -29,16 +27,14 @@ for c = 1 : C
 end
 imdb.clusters.num = nCluster;
 
-% -------------------------------------------------------------------------
-%                                                                    Images
-% -------------------------------------------------------------------------
-
+% images
+% ------
 k = 0 ;
 for thisSet = {'train', 'val'}
   thisSet = char(thisSet) ;
 
   fprintf('Loading PASCAL VOC %s set\n', thisSet) ;
-  [gtids,t]=textread(sprintf('/data/jingyanw/dataset/pascal/inst/%s.txt',thisSet),'%s %d');
+  [gtids,t]=textread(sprintf('data/VOCdevkit/SDS/%s.txt',thisSet),'%s %d');
 
   k = k + 1 ;
   imdb_.images.name{k} = strcat(gtids,'.jpg');
@@ -56,7 +52,8 @@ for thisSet = {'train', 'val'}
   % for i=1:length(gtids)
   parfor i=1:length(gtids)
     % Read annotation
-    [boxes_inst, labels_inst, size_inst, ~, ~, iou_cluster, iou_cluster_flip] = read_record(imdb, gtids{i}, clusters); % boxes: Mx4
+    [boxes_inst, labels_inst, size_inst, ~, ~, iou_cluster, iou_cluster_flip] = ...
+        read_record(imdb, gtids{i}, clusters); % boxes: Mx4
 
     sizes(i, :) = size_inst;
     gtbox{i} = boxes_inst;
@@ -86,9 +83,8 @@ imdb.boxes.gtlabel = vertcat(imdb_.boxes.gtlabel{:}) ;
 imdb.boxes.gtdist = vertcat(imdb_.boxes.gtdist{:});
 imdb.boxes.gtdistflip = vertcat(imdb_.boxes.gtdistflip{:});
 
-% -------------------------------------------------------------------------
-% Flipped
-% -------------------------------------------------------------------------
+% flip
+% ------
 imdb.boxes.flip = zeros(size(imdb.images.name));
 
 % Add flipped

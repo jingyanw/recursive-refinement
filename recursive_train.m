@@ -2,12 +2,16 @@ function [net, info] = recursive_train(varargin)
 % RECURSIVE_TRAIN: Train the model.
 
 opts.debug = false;
-opts.dataDir   = '/data/jingyanw/dataset/pascal/inst/' ;
-opts.expDir    = 'models/trash';
-opts.imdbPath  = 'data/imdb/imdb-voc11inst-shape-thresh25.mat');
+opts.expDir    = 'data/models/shape-thresh25-vgg16';
+opts.imdbPath  = 'data/imdb/imdb-voc11inst-shape-thresh25.mat';
 opts.modelPath = 'data/pretrained/imagenet-vgg-verydeep-16.mat';
-opts.clusterPath = '/home/jingyanw/work/exemplar-pascal/analyze/clusters-gtbox.mat';
-opts.derOutputs = {};
+opts.clusterPath = 'data/clusters/clusters-shape-thresh25.mat';
+opts.derOutputs = {'loss_rpn_cls', 1, 'loss_rpn_reg', 1, 'losscls', 1, 'lossbbox', 1};
+for i = 1 : 20
+    c = @(s) append_c(s, i);
+    opts.derOutputs(end + 1 : end + 4) = {c('losscls'), 1, c('lossbbox'), 1};
+end
+
 opts.rpnPos = 128;
 opts.rpnNeg = 128;
 opts.classPos = 128;
@@ -20,7 +24,7 @@ opts.bgThreshLo = 0; % 0.1: hard-mining
 opts.keep_neg_n = 500; % after RPN
 opts.keep_neg_n_subclass = 300; % after class
 opts.rpn_sigma = 1;
-opts.baseLR = 1;
+opts.baseLR = 1/3; % normalize because of 3 levels
 
 opts.randomSeed = 0;
 [opts, varargin] = vl_argparse(opts, varargin) ;
@@ -45,9 +49,8 @@ display(opts);
 opts.train.expDir = opts.expDir ;
 opts.train.numEpochs = numel(opts.train.learningRate) ;
 
-% -------------------------------------------------------------------------
-% Database initialization
-% -------------------------------------------------------------------------
+% init imdb
+% ------
 if ~exist(opts.expDir,'dir')
   mkdir(opts.expDir);
 end
@@ -67,17 +70,11 @@ else
 end
 fprintf('done.\n');
 
-% TODO: delete following
-scratchDir = '/scratch/jingyanw/dataset/pascal/inst/img/';
-if exist(scratchDir, 'dir')
-    imdb.imageDir = scratchDir;
-end
-
 % use minival
 imdb = carve_minival(imdb);
-% -------------------------------------------------------------------------
-% Network initialization
-% -------------------------------------------------------------------------
+
+% init network
+% ------
 net = recursive_init('modelPath',opts.modelPath, ...
         'nShape', imdb.clusters.num, 'confThresh', opts.confThresh, ...
         'subclassPos', opts.subclassPos, 'subclassNeg', opts.subclassNeg, ...
@@ -88,9 +85,8 @@ net = recursive_init('modelPath',opts.modelPath, ...
         'classPos', opts.classPos, 'classNeg', opts.classNeg, ...
         'debug', opts.debug);
 
-% --------------------------------------------------------------------
-% Train
-% --------------------------------------------------------------------
+% train
+% ------
 % minibatch options
 bopts = net.meta.normalization;
 bopts.useGpu = numel(opts.train.gpus) >  0 ;
@@ -109,7 +105,7 @@ anchors = generate_anchors();
                            opts.train) ;
 
 % test
-full_test_shape('imdbPath', opts.imdbPath, 'expDir', opts.expDir, 'gpu', opts.train.gpus, 'clusterPath', opts.clusterPath);
+recursive_test('imdbPath', opts.imdbPath, 'expDir', opts.expDir, 'gpu', opts.train.gpus, 'clusterPath', opts.clusterPath);
 fprintf('Done.\n');
 
 % --------------------------------------------------------------------
@@ -136,7 +132,6 @@ if opts.useGpu > 0
   im = gpuArray(im) ;
   targets = gpuArray(targets) ;
   instance_weights = gpuArray(instance_weights) ;
-  % TODO: does it make sense to make GTBOXES GpuArray?
 end
 
 inputs = {'input', im, 'rpn_labels', labels, 'rpn_targets', targets, ...

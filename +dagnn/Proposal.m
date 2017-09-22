@@ -185,7 +185,6 @@ classdef Proposal < dagnn.Layer
                         sum((labels < obj.nClass + 1) & (labels > 0)), ...
                         sum(labels == obj.nClass + 1) ...
                     );
-                    % keyboard
                 end
         end
     end

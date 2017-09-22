@@ -7,8 +7,8 @@ else
     fprintf('NMS module is not installed.\n');
 end
 
-if exist('data/devkit/VOCdevkit/VOCcode')
-    addpath data/devkit/VOCdevkit/VOCcode;
+if exist('data/VOCdevkit/VOCcode')
+    addpath data/VOCdevkit/VOCcode;
 else
     fprintf('VOC devkit is not downloaded.\n');
 end

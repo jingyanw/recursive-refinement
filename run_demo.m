@@ -4,11 +4,9 @@ function run_demo(varargin)
 opts.gpu = [1] ;
 
 opts.modelPath = 'data/models/shape-thresh25-vgg16-epoch7.mat';
-opts.modelPath = 'models/final-once-more/net-epoch-3.mat';
+opts.modelPath = 'models/final-once-more/net-epoch-3.mat'; % TODO: remove this
 opts.clusterPath = 'data/clusters/clusters-shape-thresh25.mat';
 
-opts.top1 = 300;
-opts.top2 = 100;
 opts.confThresh = 0.9;
 opts.nmsThresh = 0.3 ;
 opts.maxPerImage = 100 ;
@@ -20,21 +18,19 @@ if ~isempty(opts.gpu)
   gpuDevice(opts.gpu)
 end
 
-% -------------------------------------------------------------------------
-% Network initialization
-% -------------------------------------------------------------------------
+% init network
+% ------
 net = load(opts.modelPath, 'net'); % {net, state, stats}
 net = dagnn.DagNN.loadobj(net.net) ;
 
-net = recursive_deploy(net, 'confThresh', opts.confThresh, 'top1', opts.top1, 'top2', opts.top2);
+net = recursive_deploy(net, 'confThresh', opts.confThresh);
 
 if ~isempty(opts.gpu)
   net.move('gpu') ;
 end
 
-% -------------------------------------------------------------------------
-% Database initialization
-% -------------------------------------------------------------------------
+% init imdb
+% ------
 clusters = load(opts.clusterPath);
 I = imread('data/demo.jpg');
 im = single(bsxfun(@minus, single(I), net.meta.normalization.averageImage));
@@ -42,11 +38,8 @@ if ~isempty(opts.gpu),  im = gpuArray(im); end
 [H, W, ~] = size(im);
 inputs = {'input', im, 'gtboxes', nan, 'imsize', [H, W]};
 
-
-% -------------------------------------------------------------------------
-% Evaluate
-% -------------------------------------------------------------------------
-% shape classifier -- find categories
+% eval
+% ------
 nCls = 20;
 probClsVars = nan(1, nCls);
 probSubclsVars = nan(1, nCls);

@@ -66,7 +66,6 @@ VOCopts.testset='val';
 
 % category classifier
 testIdx = find(imdb.images.set == 2) ;
-% testIdx = testIdx(1:2000);% TODO delete
 NVal = numel(testIdx);
 
 % shape classifier -- find categories
@@ -196,17 +195,20 @@ for t = 1: numel(testIdx)
     end
   end
 
-  if mod(t-1, 100) == 0, fprintf('[%.1f sec] %d/%d (%.1f HZ)\n', toc(start), t, numel(testIdx), t / toc(start)) ; end
+  if mod(t-1, 100) == 0
+    fprintf('[%.1f sec] %d/%d (%.1f Hz)\n', ...
+            toc(start), t, numel(testIdx), t / toc(start));
+  end
 end
 
 gpuDevice([]);
 
 %% PASCAL VOC evaluation
-VOCdevkitPath = fullfile('data/devkit', 'VOCdevkit');
+VOCdevkitPath = 'data/VOCdevkit';
 
 % fix voc folders
-VOCopts.imgsetpath = 'data/voc11-inst/%s.txt';
-VOCopts.annopath   = '/data/jingyanw/dataset/pascal/voc11/Annotations/%s.xml';
+VOCopts.imgsetpath = 'data/VOCdevkit/SDS/%s.txt';
+VOCopts.annopath   = 'data/VOCdevkit/VOC2012/Annotations/%s.xml';
 VOCopts.localdir   = fullfile(VOCdevkitPath, 'local','inst');
 VOCopts.annocachepath = fullfile(VOCopts.localdir, '%s_anno.mat');
 
@@ -214,7 +216,7 @@ mkdir_if_not_exists(VOCopts.localdir);
 
 % inst eval
 % ---
-gtPath = 'data/voc11-inst/gt_inst_val.mat';
+gtPath = 'data/VOCdevkit/SDS/gt_inst_val.mat';
 if ~exist(gtPath)
     setup_inst_gt(imdb);
 end

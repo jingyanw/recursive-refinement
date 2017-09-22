@@ -118,7 +118,6 @@ if opts.debug
     ts = targets(weights == 1);
     fprintf('RPN mean: %.3f\n', mean(ts));
     fprintf('RPN std: %.3f\n', std(ts));
-    keyboard;
 end
 
 function [h, w] = compute_conv5_size(h, w)

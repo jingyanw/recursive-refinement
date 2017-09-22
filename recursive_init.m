@@ -57,8 +57,8 @@ net.addLayer('proposal2', dagnn.Proposal2(...
         horzcat({'rois_sub', 'split_sub'}, labels2, targets2, instance_weights2));
 
 % add per-category shape classifier
-% ======
-% roi
+% ------
+% ROI
 pRelu5 = find(arrayfun(@(a) strcmp(a.name, 'relu5_3'), net.layers)==1);
 net.addLayer('roipool_sub', dagnn.ROIPooling('method','max','transform',1/16,...
   'subdivisions',[7,7],'flatten',0), ...
@@ -93,7 +93,6 @@ net.addLayer('split_sub', dagnn.Split2(), {'drop7_sub', 'split_sub'}, drops2);
 
 % add leaf nodes
 net = init_subclass_single_regress(net, 'category', opts.category, 'nShape', opts.nShape);
-
 net.rebuild();
 
 % No decay for bias and set learning rate to 2
@@ -141,4 +140,3 @@ for cat = opts.category
     % reg -- huber loss
     net.addLayer(c('lossbbox'), dagnn.LossSmoothL1(), {c('predbbox'), c('targets'), c('instance_weights')}, c('lossbbox'), {});
 end
-

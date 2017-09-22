@@ -37,4 +37,4 @@ for i = 1 : N
     if mod(i-1, 500) == 0, fprintf('[%s %.1f sec] %d/%d.\n', mfilename, toc(t), i, N); end
 end
 
-save('data/voc11-inst/gt_inst_val.mat', '-struct', 'gt');
+save('data/VOCdevkit/SDS/gt_inst_val.mat', '-struct', 'gt');

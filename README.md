@@ -2,7 +2,7 @@
 
 This is the source code for training and evaluating the hierarchical detection model with recursive refinement module.
 
-If you run into any problems using the code, please file an issue, or contact [Jingyan Wang](mailto:jingyanw@cs.cmu.edu).
+The code is tested with MATLAB R2016b. If you run into any problems, please file an issue, or contact [Jingyan Wang](mailto:jingyanw@cs.cmu.edu).
 ## Installation
 1. Clone the repo:
 ```Shell
@@ -24,12 +24,14 @@ Run `download.m` to download the following data to `$ROOT/data`:
 - The cluster subclasses with using the IOU metric on the object masks. The IOU between two shape clusters within the same class is roughly 0.75:
 
  `clusters/clusters-shape-thresh25.mat`
-- The devkit for PASCA-VOC:
 
-  `devkit`
-- The PSACAL-VOC2011 raw images and annotations with [SBD augmentation](http://home.bharathh.info/pubs/codes/SBD/download.html):
+- The raw data and devkit for PASCA-VOC2012, with [SBD augmentation](http://home.bharathh.info/pubs/codes/SBD/download.html):
 
-  `voc11-inst`
+  ```
+  VOCdevkit/VOC2012
+  VOCdevkit/VOCcode
+  VOCdevkit/SDS
+  ```
 - A trained VGG-16 model:
 
   `models/shape-thresh25-vgg16-epoch7.mat`

@@ -12,22 +12,28 @@ if ~exist(pretrainedDir, 'dir')
              fullfile(pretrainedDir, 'imagenet-vgg-verydeep-16.mat'));
 end
 
-% PASCAL VOC11-inst
-pascalDir = 'data/voc11-inst';
-if ~exist(pascalDir, 'dir')
-    fprintf('Prepare VOC11-inst data...');
-    mkdir(pascalDir);
-    untar('http://www.eecs.berkeley.edu/Research/Projects/CS/vision/grouping/semantic_contours/benchmark.tgz', pascalDir);
-    movefile(fullfile(pascalDir, 'benchmark_code_RELEASE/dataset'), fullfile(pascalDir));
+% PASCAL VOC2012 data (using the box annotations for detection evaluation) + devkit
+if ~exist('data/VOCdevkit/VOC2012')
+    fprintf('Prepare PASCAL-VOC (raw data)...\n');
+    untar('http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar', 'data');
 end
 
-mat2png(pascalDir, 'cls', labelColors(21));
-mat2png(pascalDir, 'inst', labelColors(35));
+if ~exist('data/VOCdevkit/VOCcode')
+    fprintf('Prepare PASCAL-VOC (devkit)...\n');
+    untar('http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCdevkit_18-May-2011.tar', 'data');
+end
 
-% PASCAL devkit
-devkitDir = 'data/devkit';
-fprintf('Prepare VOCdevkit...\n');
-untar('http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCdevkit_18-May-2011.tar', devkitDir);
+% SDS augmentation
+SDSDir = 'data/VOCdevkit/SDS';
+if ~exist(SDSDir)
+    fprintf('Prepare PASCAL-VOC (sds augmentation)...\n');
+    mkdir_if_not_exists('data/tmp');
+    websave('data/tmp/sds.tgz', 'http://www.eecs.berkeley.edu/Research/Projects/CS/vision/grouping/semantic_contours/benchmark.tgz');
+    untar('data/tmp/sds.tgz', 'data/tmp');
+    movefile('data/tmp/benchmark_RELEASE/dataset', SDSDir);
+    mat2png(SDSDir, 'cls', labelColors(21));
+    mat2png(SDSDir, 'inst', labelColors(35));
+end
 
 fprintf('Done.\n');
 
@@ -39,16 +45,14 @@ mkdir_if_not_exists(destDir);
 
 files = dir(fullfile(sourceDir, '*.mat'));
 N = numel(files);
-mval = 0;
 for i = 1 : N
     name = files(i).name;
     field = ['GT' task];
     im = load(fullfile(sourceDir, name), field);
     im = uint8(im.(field).Segmentation);
-    mval = max(mval, max(im(:)));
 
     imwrite(uint8(im), cmap, fullfile(destDir, [name(1:end-4) '.png']), 'png');
-    if mod(i-1, 1000) == 0 || i == N, fprintf('Convert %s image %d/%d (max %d).\n', task, i, N, mval); end
+    if mod(i-1, 1000) == 0 || i == N, fprintf('Convert %s image %d/%d.\n', task, i, N); end
 
 end
 
