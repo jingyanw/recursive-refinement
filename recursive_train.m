@@ -56,7 +56,7 @@ if ~exist(opts.expDir,'dir')
 end
 save(fullfile(opts.expDir, 'opts'), '-struct', 'opts');
 
-if exist(opts.imdbPath)
+if exist(opts.imdbPath, 'file')
     fprintf('Loading imdb...\n');
     imdb = load(opts.imdbPath);
 else
@@ -105,15 +105,13 @@ anchors = generate_anchors();
                            opts.train) ;
 
 % test
-recursive_test('imdbPath', opts.imdbPath, 'expDir', opts.expDir, 'gpu', opts.train.gpus, 'clusterPath', opts.clusterPath);
+recursive_test('imdbPath', opts.imdbPath, 'expDir', opts.expDir, ...
+               'clusterPath', opts.clusterPath, 'gpu', opts.train.gpus);
 fprintf('Done.\n');
 
-% --------------------------------------------------------------------
 function inputs = getBatch(opts, anchors, imdb, batch)
-% --------------------------------------------------------------------
-if isempty(batch)
-  return;
-end
+% ------
+if isempty(batch), return; end
 
 images = strcat([imdb.imageDir filesep], imdb.images.name(batch)) ;
 opts.prefetch = (nargout == 0);

@@ -103,7 +103,6 @@ for cls = 1 : nCls
   pick = bbox_nms(double(boxscore),opts.nmsThresh);
   boxscores_nms{cls} = boxscore(pick,:) ;
   subcls_idx = subcls_idx(pick);
-  probs_subcls = probs_subcls(:, pick);
   conf = conf(pick);
 
   % write inst
@@ -126,8 +125,7 @@ for cls = 1 : nCls
 
   offset = boxscores_nms{cls}(:, 1:2);
 
-  % M x 2
-  inst.offset = vertcat(inst.offset, offset);
+  inst.offset = vertcat(inst.offset, offset); % M x 2
   inst.objMap = horzcat(inst.objMap, objMap);
 end
 

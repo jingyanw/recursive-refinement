@@ -13,19 +13,19 @@ if ~exist(pretrainedDir, 'dir')
 end
 
 % PASCAL VOC2012 data (using the box annotations for detection evaluation) + devkit
-if ~exist('data/VOCdevkit/VOC2012')
+if ~exist('data/VOCdevkit/VOC2012', 'dir')
     fprintf('Prepare PASCAL-VOC (raw data)...\n');
     untar('http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar', 'data');
 end
 
-if ~exist('data/VOCdevkit/VOCcode')
+if ~exist('data/VOCdevkit/VOCcode', 'dir')
     fprintf('Prepare PASCAL-VOC (devkit)...\n');
     untar('http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCdevkit_18-May-2011.tar', 'data');
 end
 
 % SBD augmentation
 SBDDir = 'data/VOCdevkit/VOC-SBD';
-if ~exist(SBDDir)
+if ~exist(SBDDir, 'dir')
     fprintf('Prepare PASCAL-VOC (sds augmentation)...\n');
     mkdir_if_not_exists('data/tmp');
     websave('data/tmp/sds.tgz', 'http://www.eecs.berkeley.edu/Research/Projects/CS/vision/grouping/semantic_contours/benchmark.tgz');
@@ -58,19 +58,6 @@ end
 
 function cmap = labelColors(N)
 % From https://github.com/vlfeat/matconvnet-fcn/blob/master/fcnTest.m
-% N: number of colors
-cmap = zeros(N,3);
-for i=1:N
-  id = i-1; r=0;g=0;b=0;
-  for j=0:7
-    r = bitor(r, bitshift(bitget(id,1),7 - j));
-    g = bitor(g, bitshift(bitget(id,2),7 - j));
-    b = bitor(b, bitshift(bitget(id,3),7 - j));
-    id = bitshift(id,-3);
-  end
-  cmap(i,1)=r; cmap(i,2)=g; cmap(i,3)=b;
-end
-cmap = cmap / 255;
 % N: number of colors
 cmap = zeros(N,3);
 for i=1:N

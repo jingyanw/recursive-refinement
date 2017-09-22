@@ -1,4 +1,4 @@
-function VOCevalinst(results, minoverlaps, GT)
+function VOCevalinst_11inst(results, minoverlaps, GT)
 % VOCEVALINST_11INST: Evaluate instance segmentation on PASCAL VOC11-inst split.
 %   Inputs:
 %     RESULTS: Predictions
@@ -103,7 +103,6 @@ tic;
 for d = 1:nd
     % find ground truth image
     i = pred.imgidx(d);
-    name = results.names{i};
 
     % assign detection to ground truth object if any
     mask = results.objMap{i}{pred.objidx(d)};

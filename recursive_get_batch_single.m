@@ -1,4 +1,4 @@
-function [imo, gts] = full_get_batch_single(images, imdb, batch, opts)
+function [imo, gts] = recursive_get_batch_single(images, imdb, batch, opts)
 % GTS: [6, G]
 
 % opts.maxScale = 1000;

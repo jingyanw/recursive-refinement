@@ -154,7 +154,6 @@ for t = 1: numel(testIdx)
     pick = bbox_nms(double(boxscore),opts.nmsThresh);
     boxscores_nms{cls, t} = boxscore(pick,:) ;
     subcls_idx = subcls_idx(pick);
-    probs_subcls = probs_subcls(:, pick);
     conf = conf(pick);
 
     % write inst
@@ -177,22 +176,8 @@ for t = 1: numel(testIdx)
 
     offset = boxscores_nms{cls, t}(:, 1:2);
 
-    % M x 2
-    inst.offset{t} = vertcat(inst.offset{t}, offset);
+    inst.offset{t} = vertcat(inst.offset{t}, offset); % M x 2
     inst.objMap{t} = horzcat(inst.objMap{t}, objMap);
-
-    if false
-      idx = boxscores_nms{cls, t}(:, 5) > 0.5;
-      if sum(idx)==0, continue; end
-      
-      figure(1) ; clf ;
-      bbox_draw(imread(fullfile(imdb.imageDir,imdb.images.name{testIdx(t)})), ...
-                boxscores_nms{cls, t}(idx,:)) ;
-      title(['img #' num2str(t) ': ' net.meta.classes.name{cls}]) ;
-
-      drawnow ;
-      pause;
-    end
   end
 
   if mod(t-1, 100) == 0
@@ -217,7 +202,7 @@ mkdir_if_not_exists(VOCopts.localdir);
 % inst eval
 % ---
 gtPath = 'data/VOCdevkit/VOC-SBD/gt_inst_val.mat';
-if ~exist(gtPath)
+if ~exist(gtPath, 'file')
     setup_inst_gt(imdb);
 end
 gt = load(gtPath);

@@ -105,11 +105,10 @@ end
 function net = init_subclass_single_regress(net, varargin)
 % separate linear classifiers built on shared fc7 features
 
-opts.category = 0; % array of integers
+opts.category = 0; % array of category indices
 opts.nShape = 0; % array of integers: 1xC of all the categories
 opts = vl_argparse(opts, varargin);
 
-% CATEGORY: category idx
 nCls = opts.nShape + 1;
 
 for cat = opts.category

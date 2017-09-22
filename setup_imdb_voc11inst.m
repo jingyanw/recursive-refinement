@@ -34,7 +34,7 @@ for thisSet = {'train', 'val'}
   thisSet = char(thisSet) ;
 
   fprintf('Loading PASCAL VOC %s set\n', thisSet) ;
-  [gtids,t]=textread(sprintf('data/VOCdevkit/VOC-SBD/%s.txt',thisSet),'%s %d');
+  gtids = textread(sprintf('data/VOCdevkit/VOC-SBD/%s.txt',thisSet),'%s');
 
   k = k + 1 ;
   imdb_.images.name{k} = strcat(gtids,'.jpg');
