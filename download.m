@@ -13,11 +13,11 @@ if ~exist(pretrainedDir, 'dir')
 end
 
 % Trained model
-modelDir = 'data/models/'
+modelDir = 'data/models/';
 if ~exist(modelDir, 'dir')
     fprintf('Downloading trained model...');
     mkdir(modelDir);
-    websave(fullfile(modelDir, 'shape-thresh25-vgg16-epoch7.mat'), 'TODO');
+    websave(fullfile(modelDir, 'shape-thresh25-vgg16-epoch7.mat'), 'https://cmu.box.com/shared/static/8wepwbr5u2eroekjfq66jxl7ibqrs2re.mat');
 end
 
 % PASCAL VOC2012 data (using the box annotations for detection evaluation) + devkit
