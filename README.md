@@ -48,9 +48,9 @@ Run `run_test.m` to test the provided off-the-shelf model, with the following pe
 #### Detection
 | AP (@0.5) | AP (@0.7) |
 |:---:|:---:|
-| TODO | TODO |
+| 68.8 | 46.1 |
 
 #### Instance segmentation
 | AP^r (@0.5) | AP^r (@0.7) |
 |:---:|:---:|
-| TODO | TODO |
+| 54.5 | 19.0 |

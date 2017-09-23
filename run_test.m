@@ -1,6 +1,6 @@
 % RUN_TEST: script to test the model
 
-gpus = [3];
-modelPath = 'models/final-once-more/net-epoch-6.mat';
+gpus = [1];
+modelPath = 'data/models/shape-thresh25-vgg16-epoch7.mat';
 
 recursive_test('modelPath', modelPath, 'gpu', gpus);

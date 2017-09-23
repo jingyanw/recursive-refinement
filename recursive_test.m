@@ -243,7 +243,7 @@ for ovlp = [0.5, 0.7]
     fprintf('mAP (%.1f): %.1f%%\n', ovlp, 100 * mean(aps));
 end
 
-fprintf('Done.\n'); keyboard;
+fprintf('Done.\n');
 
 % --------------------------------------------------------------------
 function inputs = getBatch(opts, imdb, batch)

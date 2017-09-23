@@ -6,33 +6,45 @@ mkdir_if_not_exists('data');
 % Pre-trained ImageNet VGG-16 model
 pretrainedDir = 'data/pretrained';
 if ~exist(pretrainedDir, 'dir')
-    fprintf('Prepare pretrained models...');
+    fprintf('Preparing pretrained models...');
     mkdir(pretrainedDir);
     urlwrite('http://www.vlfeat.org/matconvnet/models/imagenet-vgg-verydeep-16.mat', ...
              fullfile(pretrainedDir, 'imagenet-vgg-verydeep-16.mat'));
 end
 
+% Trained model
+modelDir = 'data/models/'
+if ~exist(modelDir, 'dir')
+    fprintf('Downloading trained model...');
+    mkdir(modelDir);
+    websave(fullfile(modelDir, 'shape-thresh25-vgg16-epoch7.mat'), 'TODO');
+end
+
 % PASCAL VOC2012 data (using the box annotations for detection evaluation) + devkit
 if ~exist('data/VOCdevkit/VOC2012', 'dir')
-    fprintf('Prepare PASCAL-VOC (raw data)...\n');
+    fprintf('Downloading PASCAL-VOC (raw data)...\n');
     untar('http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar', 'data');
 end
 
 if ~exist('data/VOCdevkit/VOCcode', 'dir')
-    fprintf('Prepare PASCAL-VOC (devkit)...\n');
+    fprintf('Downloading PASCAL-VOC (devkit)...\n');
     untar('http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCdevkit_18-May-2011.tar', 'data');
 end
 
 % SBD augmentation
 SBDDir = 'data/VOCdevkit/VOC-SBD';
 if ~exist(SBDDir, 'dir')
-    fprintf('Prepare PASCAL-VOC (sds augmentation)...\n');
+    fprintf('Downloading PASCAL-VOC (sds augmentation)...\n');
     mkdir_if_not_exists('data/tmp');
     websave('data/tmp/sds.tgz', 'http://www.eecs.berkeley.edu/Research/Projects/CS/vision/grouping/semantic_contours/benchmark.tgz');
     untar('data/tmp/sds.tgz', 'data/tmp');
     movefile('data/tmp/benchmark_RELEASE/dataset', SBDDir);
     mat2png(SBDDir, 'cls', labelColors(21));
     mat2png(SBDDir, 'inst', labelColors(35));
+
+    % train-val split
+    websave(fullfile(SBDDir, 'train.txt'), 'https://raw.githubusercontent.com/daijifeng001/MNC/master/data/VOCdevkitSDS/train.txt');
+    websave(fullfile(SBDDir, 'val.txt'), 'https://raw.githubusercontent.com/daijifeng001/MNC/master/data/VOCdevkitSDS/val.txt');
 end
 
 fprintf('Done.\n');

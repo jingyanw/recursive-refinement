@@ -4,7 +4,6 @@ function run_demo(varargin)
 opts.gpu = [1] ;
 
 opts.modelPath = 'data/models/shape-thresh25-vgg16-epoch7.mat';
-opts.modelPath = 'models/final-once-more/net-epoch-3.mat'; % TODO: remove this
 opts.clusterPath = 'data/clusters/clusters-shape-thresh25.mat';
 
 opts.confThresh = 0.9;

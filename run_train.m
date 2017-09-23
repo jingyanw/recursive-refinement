@@ -1,6 +1,6 @@
 % RUN_TRAIN: Script to train the model.
 
-gpus = [2];
+gpus = [1];
 % imdb
 imdbPath25 = 'data/imdb/imdb-voc11inst-shape-thresh25.mat';
 % clusters: 1142 in total
